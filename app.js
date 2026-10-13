@@ -6,6 +6,74 @@ function makeLesson(id, title, summary, code, task, question, options, answer = 
 }
 
 const starterCourses = [
+    {
+  id: 'html5',
+  title: 'HTML5 va sahifa tuzilishi',
+  short: 'HTML',
+  level: 'Boshlang‘ich',
+  description: 'HTML tuzilishi, matnlar, havolalar, rasmlar, ro‘yxatlar va semantik teglar.',
+  lessons: [
+    makeLesson(
+      'html-structure',
+      'HTML hujjatining asosiy tuzilishi',
+      'HTML veb-sahifaning asosiy tuzilishini yaratadi. <!DOCTYPE html> hujjat turini bildiradi, head qismida sahifa haqidagi ma’lumotlar, body qismida esa foydalanuvchiga ko‘rinadigan kontent joylashadi.',
+      '<!DOCTYPE html>\n<html lang="uz">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Mening sahifam</title>\n</head>\n<body>\n  <h1>Salom, dunyo!</h1>\n  <p>Mening birinchi HTML sahifam.</p>\n</body>\n</html>',
+      'HTML hujjati yarating. Unda sahifa nomi, bitta sarlavha va bitta paragraf bo‘lsin.',
+      'Foydalanuvchiga ko‘rinadigan asosiy kontent qaysi teg ichida yoziladi?',
+      ['<body>', '<head>', '<meta>']
+    ),
+
+    makeLesson(
+      'html-text',
+      'Sarlavhalar va matn formatlash',
+      'HTMLda h1 dan h6 gacha bo‘lgan teglar sarlavhalar uchun ishlatiladi. p paragraf yaratadi, strong muhim matnni, em esa urg‘u berilgan matnni ifodalaydi.',
+      '<h1>Bosh sarlavha</h1>\n<h2>Bo‘lim nomi</h2>\n<p>Bu oddiy paragraf.</p>\n<p><strong>Muhim:</strong> topshiriqni bajaring.</p>\n<p><em>Diqqat bilan</em> o‘qing.</p>',
+      'Bir bosh sarlavha, ikkita kichik sarlavha va formatlangan paragraflardan iborat maqola yarating.',
+      'HTMLda eng yuqori darajadagi sarlavha qaysi teg bilan yoziladi?',
+      ['<h1>', '<h6>', '<header>']
+    ),
+
+    makeLesson(
+      'html-links',
+      'Havolalar va navigatsiya',
+      'a tegi boshqa sahifa yoki saytga havola yaratadi. href atributi havola manzilini belgilaydi. nav tegi navigatsiya havolalarini guruhlash uchun ishlatiladi.',
+      '<nav>\n  <a href="index.html">Bosh sahifa</a>\n  <a href="about.html">Biz haqimizda</a>\n  <a href="https://example.com">Tashqi sayt</a>\n</nav>',
+      'Bosh sahifa, xizmatlar va aloqa bo‘limlariga olib boruvchi uchta havolali navigatsiya yarating.',
+      'Havolaning manzilini belgilaydigan atribut qaysi?',
+      ['href', 'src', 'alt']
+    ),
+
+    makeLesson(
+      'html-images',
+      'Rasmlar va atributlar',
+      'img tegi sahifaga rasm joylashtiradi. src rasm manzilini, alt esa rasmni ko‘ra olmaydigan foydalanuvchilar uchun muqobil matnni belgilaydi. img bo‘sh element hisoblanadi.',
+      '<figure>\n  <img src="images/nature.jpg"\n       alt="Yashil tabiat va tog‘lar"\n       width="400">\n  <figcaption>Tabiat manzarasi</figcaption>\n</figure>',
+      'Sahifaga bitta rasm joylashtiring. Unga alt atributi va qisqa izoh qo‘shing.',
+      'Rasm yuklanmasa yoki ekran o‘quvchi ishlatilsa, muqobil matnni qaysi atribut beradi?',
+      ['alt', 'href', 'title']
+    ),
+
+    makeLesson(
+      'html-lists',
+      'Ro‘yxatlar va jadvallar',
+      'ul tartiblanmagan ro‘yxat, ol tartiblangan ro‘yxat yaratadi. li ro‘yxat elementini bildiradi. table esa jadval yaratish uchun ishlatiladi; tr satr, th sarlavha katagi, td oddiy katakdir.',
+      '<h2>O‘quv fanlari</h2>\n<ul>\n  <li>HTML</li>\n  <li>CSS</li>\n  <li>JavaScript</li>\n</ul>\n\n<table>\n  <tr><th>Fan</th><th>Daraja</th></tr>\n  <tr><td>HTML</td><td>Boshlang‘ich</td></tr>\n</table>',
+      'Uchta fan kiritilgan ro‘yxat va fan nomi hamda darajasi ko‘rsatilgan jadval yarating.',
+      'Tartib raqamlari bilan ko‘rsatiladigan ro‘yxat qaysi teg yordamida yaratiladi?',
+      ['<ol>', '<ul>', '<li>']
+    ),
+
+    makeLesson(
+      'html-semantic',
+      'Semantik teglar va formalar',
+      'Semantik teglar sahifa qismlarining vazifasini anglatadi. header sahifa yoki bo‘lim boshini, main asosiy kontentni, section bo‘limni, footer esa yakuniy qismini bildiradi. form foydalanuvchidan ma’lumot olish uchun ishlatiladi.',
+      '<header>\n  <h1>Onlayn kurslar</h1>\n</header>\n<main>\n  <section>\n    <h2>Ro‘yxatdan o‘tish</h2>\n    <form action="#" method="post">\n      <label for="name">Ismingiz:</label>\n      <input id="name" name="name" type="text" required>\n      <button type="submit">Yuborish</button>\n    </form>\n  </section>\n</main>\n<footer>© 2026 Onlayn kurslar</footer>',
+      'Sarlavha, asosiy kontent, ro‘yxatdan o‘tish formasi va footer qismidan iborat sahifa yarating.',
+      'Sahifaning asosiy kontentini belgilash uchun qaysi semantik teg ishlatiladi?',
+      ['<main>', '<aside>', '<footer>']
+    )
+  ]
+},
  
   { id: 'css3', title: 'CSS3 va maket', short: 'CSS', level: 'Boshlang‘ich', description: 'Selektorlar, ranglar, box model, Flexbox, Grid va responsive dizayn.', lessons: [
     makeLesson('css-selectors', 'Selektorlar va kaskad', 'CSS selektori qaysi element bezatilishini tanlaydi. Class qayta ishlatiladi, id esa sahifadagi yagona elementga beriladi; kaskad qoidalar ustuvorligini hal qiladi.', '.card { padding: 16px; }\n#main-title { color: darkgreen; }\nnav a:hover { text-decoration: underline; }', 'Uchta kartaga class, sahifa sarlavhasiga id selektori yozing.', 'Qayta ishlatiladigan stillar uchun qaysi selektor ma’qul?', ['.class', '#id', '* faqat']),
