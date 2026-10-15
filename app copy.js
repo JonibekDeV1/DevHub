@@ -303,11 +303,11 @@ function saveUsers() { localStorage.setItem(STORAGE.users, JSON.stringify(users)
 function saveSession() { localStorage.setItem(STORAGE.session, JSON.stringify(session)); }
 function syncStarterCatalog() {
   if (!storedCourses) {
-    localStorage.setItem(STORAGE.catalogVersion, '5');
+    localStorage.setItem(STORAGE.catalogVersion, '6');
     saveCourses();
     return;
   }
-  if (localStorage.getItem(STORAGE.catalogVersion) === '5') return;
+  if (localStorage.getItem(STORAGE.catalogVersion) === '6') return;
   const existingCourses = courses;
   courses = starterCourses.map(starter => {
     const existing = existingCourses.find(course => course.id === starter.id);
@@ -318,7 +318,7 @@ function syncStarterCatalog() {
     const customLessons = savedLessons.filter(lesson => !starterIds.has(lesson.id));
     return { ...existing, lessons: [...orderedLessons, ...customLessons] };
   }).concat(existingCourses.filter(course => !starterCourses.some(starter => starter.id === course.id)));
-  localStorage.setItem(STORAGE.catalogVersion, '5');
+  localStorage.setItem(STORAGE.catalogVersion, '6');
   saveCourses();
 }
 function escapeHtml(value = '') { return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]); }
@@ -511,12 +511,51 @@ function lessonConcepts(lesson) {
   const matched = LESSON_CONCEPTS.filter(concept => concept.terms.some(term => searchText.includes(term))).slice(0, 2);
   return matched.length ? matched : [{ title: 'Mavzuni amalda qo‘llash', detail: 'Avval asosiy qoidani kod namunasida toping, keyin qiymatni o‘zgartirib natijani kuzating. Bu usul mavzuni yodlashdan ko‘ra tushunishga yordam beradi.' }];
 }
+
+// Kengaytirilgan dars kartalari: oddiy ta'rifdan amaliy tushunishgacha.
+const LESSON_DEEP_DIVE = {
+'html-structure':['HTML faylning skeletini tushunish','DOCTYPE hujjat turini bildiradi.','html lang="uz" sahifa tilini bildiradi.','head metama’lumotlarni, body ko‘rinadigan kontentni saqlaydi.','head va body vazifalarini almashtirmang; meta viewportni unutmang.','Sarlavha, paragraf va havolali to‘liq HTML hujjat tuzing.'],
+'html-text':['Mazmunning sarlavha ierarxiyasini tuzish','h1 asosiy sarlavha; h2 bo‘lim; h3 kichik bo‘lim uchun.','p paragraf, strong muhimlik, em urg‘u beradi.','Sarlavha darajasini faqat katta shrift olish uchun tanlamang.','HTML haqida h1, ikkita h2 va uchta paragrafli maqola yozing.'],
+'html-links':['Ichki va tashqi manzilga to‘g‘ri havola berish','a havola yaratadi, href esa manzilni belgilaydi.','#contact sahifa ichidagi id ga olib boradi.','Noaniq “bu yerga bosing” matnidan va buzilgan yo‘llardan qoching.','Ichki sahifa, tashqi sayt va #aloqa bo‘limiga uchta havola yarating.'],
+'html-images':['Rasmni to‘g‘ri va qulay ko‘rsatish','src rasm yo‘li, alt esa rasmning mazmuniy izohidir.','figure va figcaption rasmni izohi bilan guruhlaydi.','alt ni fayl nomi bilan to‘ldirmang; src yo‘lini tekshiring.','Rasmga alt, width va figcaption qo‘shing.'],
+'html-lists':['Ro‘yxat va jadvalni mazmuniga mos tanlash','ul punktli, ol raqamli ro‘yxat; li ro‘yxat bandidir.','table ichida tr satr, th sarlavha, td ma’lumot katagi.','Jadvalni sahifa maketi uchun ishlatmang; li teglarini unutmang.','Uch fanli ro‘yxat va uch ustunli ishchilar jadvali yarating.'],
+'html-semantic':['Semantik sahifa va foydalanuvchi formasi','header, nav, main, section va footer turli ma’nodagi qismlarni bildiradi.','label for qiymati input id bilan mos bo‘lsin; name forma maydonini nomlaydi.','Inputga label bermaslik va barcha joyda div ishlatishdan qoching.','Ism va email maydonli forma bilan semantik sahifa tuzing.'],
+'css-selectors':['Kerakli elementni selektor orqali topish','.class qayta ishlatiladi; #id odatda yagona elementni belgilaydi.','nav a nav ichidagi havolalarni, :hover esa hover holatini tanlaydi.','Class oldidan nuqtani va id oldidan # belgisini unutmang.','Uch kartani bezang va havolaga hover holati qo‘shing.'],
+'css-colors':['Rang tizimini bir joydan boshqarish','Hex va rgb rang yozish usullari; :root umumiy o‘zgaruvchilar uchun.','--brand ni e’lon qiling va var(--brand) orqali qo‘llang.','O‘zgaruvchi nomini xato yozmang; matn-fon kontrastini tekshiring.','Asosiy rang, matn rangi va fon o‘zgaruvchilarini yarating.'],
+'css-typography':['Matnni o‘qilishi qulay qilish','font-family shriftni, font-size o‘lchamni belgilaydi.','line-height satr oralig‘i; max-width:65ch paragraf kengligini cheklaydi.','Juda kichik shrift va haddan tashqari uzun satrlardan qoching.','Body uchun shrift va line-height, paragraf uchun max-width belgilang.'],
+'css-box':['Element o‘lchami va masofalarni tushunish','content mazmun, padding ichki bo‘shliq, border chegara, margin tashqi bo‘shliq.','box-sizing:border-box padding va borderni width hisobiga kiritadi.','Ichki bo‘shliq uchun margin ishlatish yoki width oshib ketishini unutish keng tarqalgan xato.','280px karta yarating va padding, border, marginni turlicha o‘zgartiring.'],
+'css-layout':['Flexbox bilan tekislash','Ota elementga display:flex beriladi.','justify-content asosiy o‘q, align-items ko‘ndalang o‘qni boshqaradi.','Flex xususiyatlarini bolaga emas, flex konteynerga yozing.','Logo chapda, tugma o‘ngda turadigan toolbar yarating.'],
+'css-grid':['Ikki o‘lchamli karta maketi','display:grid Gridni yoqadi.','repeat(3,1fr) uch teng ustun; gap elementlar orasini ochadi.','Mobil ekranda ham uch ustunni majburlab qo‘ymang.','auto-fit va minmax(220px,1fr) bilan kurs kartalari yasang.'],
+'css-responsive':['Telefon va desktop uchun moslashuvchan maket','Avval bir ustunli mobil maket tuzing.','@media ma’lum kenglikdan boshlab yangi CSS qoidalarini qo‘llaydi.','Qat’iy katta width va gorizontal scroll borligini tekshirmaslikdan qoching.','700px dan kichikda bir ustun, kattada uch ustun qiling.'],
+'css-position':['Elementlarni qatlam va burchaklarda joylash','relative o‘z joyini saqlaydi; absolute pozitsiyalangan ota elementga nisbatan joylashadi.','fixed viewportga nisbatan; z-index qatlam tartibiga ta’sir qiladi.','Absolute belgi uchun ota elementga position:relative berishni unutmang.','Karta o‘ng yuqori burchagiga “Yangi” belgisini joylashtiring.'],
+'css-states':['Interaktiv holat va fokusni ko‘rsatish',':hover sichqoncha, :focus-visible klaviatura fokusi holatidir.','transition o‘zgarishni silliqlashtiradi; :disabled faol bo‘lmagan tugmani belgilaydi.','outline:none bilan fokusni butunlay olib tashlamang.','Tugmaga hover, focus-visible va disabled holatlarini qo‘shing.'],
+'css-project':['CSS bilimlarini bitta real maketga birlashtirish','Rang, radius va masofalarni o‘zgaruvchilarda boshqaring.','Grid, box model, hover va media queryni birgalikda qo‘llang.','Takroriy CSS, past kontrast va faqat desktopda tekshirishdan qoching.','Uchta kurs kartali responsive katalogni yakunlang.'],
+'js-variables':['Qiymatlarni saqlash va o‘zgartirish','const qayta tayinlanmaydi; let qiymati o‘zgaradigan holatlar uchun.','Ma’noli nom tanlang va imkon bo‘lsa const dan boshlang.','const ni qayta tayinlamang; JavaScript katta-kichik harfni farqlaydi.','Mahsulot nomi/narxini const, savat sonini let bilan saqlang.'],
+'js-types':['JavaScript qiymat turlarini farqlash','string matn, number son, boolean true/false qiymati.','Array ro‘yxat, object esa nomlangan xususiyatlar to‘plami.','"25" matn va 25 son bir xil emas; massiv indeksi 0 dan boshlanadi.','Talaba obyektini va kurslar massivini yarating, maydonlarini konsolga chiqaring.'],
+'js-conditions':['Shart bilan qaror qabul qilish','if shart rost bo‘lsa ishlaydi, else boshqa holatni bajaradi.','=== qiymat va turini solishtiradi; = qiymat tayinlaydi.','Chegara qiymatni tekshiring va = bilan === ni adashtirmang.','Ball 60 yoki yuqori bo‘lsa “O‘tdi”, aks holda “Qayta urin” chiqaring.'],
+'js-loops':['Bir amalni ko‘p qiymatga qo‘llash','for indeksni boshqarishga, for...of qiymatlarni o‘qishga qulay.','Sikl tanadagi kodni har bir element uchun takrorlaydi.','Sikl sharti xato bo‘lsa cheksiz aylanish yoki elementni tashlab ketish mumkin.','1–10 sonlarni chiqaring va massivdan juft sonlarni ajrating.'],
+'js-functions':['Qayta ishlatiladigan kod yozish','Parametr funksiya kirishidagi nom; argument chaqiruvda berilgan qiymat.','return natijani chaqirgan joyga qaytaradi.','Funksiyani chaqirishni unutmang; console.log va return bir xil emas.','Ikki sonni qabul qilib, yig‘indisini qaytaradigan funksiya yozing.'],
+'js-arrays':['Ro‘yxat ustida map, filter va find ishlatish','map har elementdan yangi qiymat, filter shartga mos ro‘yxat yaratadi.','find birinchi mos elementni qaytaradi; push oxiriga element qo‘shadi.','map/filter natijasini saqlang va bo‘sh massivni ham hisobga oling.','Mahsulotlardan arzonlarini filter qilib, nomlarini map bilan chiqaring.'],
+'js-objects':['Bog‘liq qiymatlarni obyektga yig‘ish','Obyekt maydoni course.title kabi nuqta bilan olinadi.','const { title } = course destructuring orqali qiymat ajratadi.','Maydon nomini tekshiring; obyektni massiv bilan adashtirmang.','Mahsulot obyektidan name va price qiymatlarini destructuring bilan oling.'],
+'js-dom':['JavaScript orqali HTMLni boshqarish','querySelector CSS selektoriga mos birinchi elementni topadi.','textContent matnni, classList esa classlarni boshqaradi.','Element topilmasligi mumkin; oddiy matn uchun innerHTML ishlatishdan qoching.','Tugma bosilganda paragraf matnini va classini almashtiring.'],
+'js-events':['Foydalanuvchi harakatiga javob berish','addEventListener hodisa nomi va callback funksiyasini qabul qiladi.','click tugma bosilganda, input maydon qiymati o‘zgarganda ishlaydi.','Handlerni darhol chaqirib yubormang; forma submitini ham boshqaring.','+1 va Reset tugmalari bilan hisoblagich yarating.'],
+'js-storage':['Forma ma’lumotini saqlab qayta tiklash','preventDefault forma yuborilganda sahifa qayta yuklanishini to‘xtatadi.','LocalStorage string saqlaydi; JSON.stringify va JSON.parse obyektni aylantiradi.','Parolni LocalStorage’da saqlamang; parse xatosini ham hisobga oling.','Vazifa qo‘shing, saqlang va sahifa yangilanganda tiklang.'],
+'js-async':['API so‘rovini kutish va xatoni boshqarish','fetch Promise qaytaradi; async/await kutishni o‘qilishi oson qiladi.','response.ok ni tekshiring, so‘ng response.json() ni await qiling.','fetch 404 uchun avtomatik throw qilmaydi; loading/error holatlarini ko‘rsating.','API dan ma’lumot olib loading, error va natija holatlarini yarating.'],
+'js-project':['DOM, hodisalar va saqlashni yakuniy loyihaga qo‘shish','Vazifaga id, title va done maydonlarini bering.','Qo‘shish, bajarildi, o‘chirish va saqlash funksiyalarini ajrating.','Bo‘sh vazifani rad eting va UI bilan saqlangan ma’lumotni bir xil tuting.','Barcha/bajarilgan/bajarilmagan filtrli vazifalar ilovasini yarating.']
+};
+function renderDeepDive(lesson) {
+  const data = LESSON_DEEP_DIVE[lesson.id];
+  if (!data) return '';
+  const [goal, step1, step2, step3, pitfalls, challenge] = data;
+  return `<section class="deep-dive"><div class="deep-dive-heading"><span class="deep-dive-kicker">DEVHUB · USTOZ TUSHUNTIRISHI</span><h2>Mavzuni chuqur tushunamiz</h2><p>${escapeHtml(goal)}</p></div><div class="deep-dive-section"><h3><span>01</span> Qadam-baqadam</h3><ol class="deep-dive-steps"><li>${escapeHtml(step1)}</li><li>${escapeHtml(step2)}</li><li>${escapeHtml(step3)}</li><li>${escapeHtml(lesson.summary)}</li></ol></div><div class="deep-dive-section deep-dive-result"><h3><span>02</span> Muhim ogohlantirish</h3><p>${escapeHtml(pitfalls)}</p></div><div class="deep-dive-section deep-dive-challenge"><h3><span>03</span> Ustoz sinovi</h3><p>${escapeHtml(challenge)}</p><p class="deep-dive-hint">Maslahat: kodni shunchaki ko‘chirmang. Bir qiymatni o‘zgartiring, natijani kuzating va nima uchun shunday bo‘lganini o‘zingiz tushuntiring.</p></div></section>`;
+}
+
 function renderLessonGuide(lesson, course) {
   const guide = COURSE_LEARNING_GUIDES[course?.id] || { why: 'Bu mavzu dasturdagi ma’lumotni tushunish va foydalanuvchiga foydali natija berishga yordam beradi.', example: 'Mavzudagi kichik qismni haqiqiy loyiha vazifasiga qo‘llang.' };
   const concepts = lessonConcepts(lesson);
   const mainConcept = concepts[0];
   const extraConcepts = concepts.slice(1);
-  return `<section class="lesson-overview"><span class="eyebrow">BUGUNGI MAVZU</span><p class="lesson-summary">${escapeHtml(lesson.summary)}</p><div class="learning-callout callout-blue"><span class="callout-icon" aria-hidden="true">1</span><div><strong>ASOSIY QOIDA · ${escapeHtml(mainConcept.title)}</strong><p>${escapeHtml(mainConcept.detail)}</p></div></div><div class="learning-callout callout-green"><span class="callout-icon" aria-hidden="true">✓</span><div><strong>AMALDA QAYERDA KERAK?</strong><p>${escapeHtml(guide.example)}</p></div></div><details class="lesson-extra"><summary>Qo‘shimcha tushuntirish</summary><div class="lesson-guide"><h2>Nima uchun bu mavzu kerak?</h2><p>${escapeHtml(guide.why)}</p>${extraConcepts.length ? `<div class="concept-grid">${extraConcepts.map((concept, index) => `<article class="concept-card"><span class="concept-index">0${index + 2}</span><h3>${escapeHtml(concept.title)}</h3><p>${escapeHtml(concept.detail)}</p></article>`).join('')}</div>` : ''}</div></details></section>`;
+  return `<section class="lesson-overview"><span class="eyebrow">BUGUNGI MAVZU</span><p class="lesson-summary">${escapeHtml(lesson.summary)}</p><div class="learning-callout callout-blue"><span class="callout-icon" aria-hidden="true">1</span><div><strong>ASOSIY QOIDA · ${escapeHtml(mainConcept.title)}</strong><p>${escapeHtml(mainConcept.detail)}</p></div></div><div class="learning-callout callout-green"><span class="callout-icon" aria-hidden="true">✓</span><div><strong>AMALDA QAYERDA KERAK?</strong><p>${escapeHtml(guide.example)}</p></div></div><details class="lesson-extra"><summary>Qo‘shimcha tushuntirish</summary><div class="lesson-guide"><h2>Nima uchun bu mavzu kerak?</h2><p>${escapeHtml(guide.why)}</p>${extraConcepts.length ? `<div class="concept-grid">${extraConcepts.map((concept, index) => `<article class="concept-card"><span class="concept-index">0${index + 2}</span><h3>${escapeHtml(concept.title)}</h3><p>${escapeHtml(concept.detail)}</p></article>`).join('')}</div>` : ''}</div></details></section>${renderDeepDive(lesson)}`;
 }
 function explainCodeLine(line, language) {
   const source = line.trim();
